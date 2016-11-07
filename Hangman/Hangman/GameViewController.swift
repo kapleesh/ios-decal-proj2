@@ -12,6 +12,7 @@ class GameViewController: UIViewController {
     
         
     let images = [#imageLiteral(resourceName: "hangman1.gif"), #imageLiteral(resourceName: "hangman2.gif"), #imageLiteral(resourceName: "hangman3.gif"), #imageLiteral(resourceName: "hangman4.gif"), #imageLiteral(resourceName: "hangman5.gif"), #imageLiteral(resourceName: "hangman6.gif"), #imageLiteral(resourceName: "hangman7.gif")]
+    var phraseArray:[Character] = []
 
     
     var phrase = ""
@@ -41,6 +42,7 @@ class GameViewController: UIViewController {
             } else {
                 puzzleStringText += "-"
             }
+            phraseArray.append(char)
         }
         puzzleString.text = puzzleStringText
         drawHangman()
@@ -60,17 +62,17 @@ class GameViewController: UIViewController {
     
     func updateGuess() {
         let g = guess.text?.characters.last
-        let guessedLetter = "\(g!)".uppercased()
+        let guessedLetter = String(g!).uppercased()
         if phrase.contains(guessedLetter) {
             var displayStr = ""
             
             for (index, char) in (puzzleString.text?.characters.enumerated())! {
-                if phrase[index] == guessedLetter {
-                    displayStr += phrase[index]
-                } else if "\(char)" == "-" {
+                if String(phraseArray[index]) == guessedLetter {
+                    displayStr += String(phraseArray[index])
+                } else if String(char) == "-" {
                     displayStr += "-"
                 } else {
-                    displayStr += phrase[index]
+                    displayStr += String(phraseArray[index])
                 }
             }
             puzzleString.text = displayStr
@@ -78,22 +80,18 @@ class GameViewController: UIViewController {
             let badGuesses:String = incorrectGuesses.text! + guessedLetter
             incorrectGuesses.text = badGuesses
             let newNumIncorrect = Int(numIncorrectGuesses.text!)! + 1
-            numIncorrectGuesses.text = "\(newNumIncorrect)"
+            numIncorrectGuesses.text = String(newNumIncorrect)
         }
-        isOver()
-    }
-    
-    func isOver() {
-        let victory = !(puzzleString.text?.contains("-"))!
-        if victory {
-            let alertController = UIAlertController(title: "Correct!", message:
+        let hasWon = !(puzzleString.text?.contains("-"))!
+        if hasWon {
+            let alert = UIAlertController(title: "Correct!", message:
                 "Nice Work", preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Play Again", style: UIAlertActionStyle.default,handler: resetGame))
-            self.present(alertController, animated: true, completion: nil)
-        }
+            alert.addAction(UIAlertAction(title: "Play Again", style: UIAlertActionStyle.default,handler: resetGame))
+            self.present(alert, animated: true, completion: nil)        }
     }
     
     func resetGame(alert: UIAlertAction!) {
+        phraseArray.removeAll()
         viewDidLoad()
         viewWillAppear(true)
     }
@@ -101,10 +99,10 @@ class GameViewController: UIViewController {
     func drawHangman() {
         let numIncorrect = Int(numIncorrectGuesses.text!)
         if numIncorrect! > 6 {
-            let alertController = UIAlertController(title: "You Lose!", message:
+            let alert = UIAlertController(title: "You Lose!", message:
                 "The answer was \n" + phrase, preferredStyle: UIAlertControllerStyle.alert)
-            alertController.addAction(UIAlertAction(title: "Play Again", style: UIAlertActionStyle.default,handler: resetGame))
-            self.present(alertController, animated: true, completion: nil)
+            alert.addAction(UIAlertAction(title: "Play Again", style: UIAlertActionStyle.default,handler: resetGame))
+            self.present(alert, animated: true, completion: nil)
         }
         else {
             hangmanImage.image = images[numIncorrect!]
@@ -113,18 +111,3 @@ class GameViewController: UIViewController {
     
 }
 
-//extension allows access of substring in string as characters, 
-extension String {
-    subscript(i: Int) -> String {
-        guard i >= 0 && i < characters.count else { return "" }
-        return String(self[index(startIndex, offsetBy: i)])
-    }
-    subscript(range: Range<Int>) -> String {
-        let lowerIndex = index(startIndex, offsetBy: max(0,range.lowerBound), limitedBy: endIndex) ?? endIndex
-        return substring(with: lowerIndex..<(index(lowerIndex, offsetBy: range.upperBound - range.lowerBound, limitedBy: endIndex) ?? endIndex))
-    }
-    subscript(range: ClosedRange<Int>) -> String {
-        let lowerIndex = index(startIndex, offsetBy: max(0,range.lowerBound), limitedBy: endIndex) ?? endIndex
-        return substring(with: lowerIndex..<(index(lowerIndex, offsetBy: range.upperBound - range.lowerBound + 1, limitedBy: endIndex) ?? endIndex))
-    }
-}

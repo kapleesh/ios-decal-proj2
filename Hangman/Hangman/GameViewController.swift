@@ -87,7 +87,9 @@ class GameViewController: UIViewController {
             let alert = UIAlertController(title: "Correct!", message:
                 "Nice Work", preferredStyle: UIAlertControllerStyle.alert)
             alert.addAction(UIAlertAction(title: "Play Again", style: UIAlertActionStyle.default,handler: resetGame))
-            self.present(alert, animated: true, completion: nil)        }
+            self.present(alert, animated: true, completion: nil)
+        }
+        guess.text = ""
     }
     
     func resetGame(alert: UIAlertAction!) {
